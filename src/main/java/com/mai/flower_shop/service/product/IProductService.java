@@ -1,5 +1,6 @@
 package com.mai.flower_shop.service.product;
 
+import com.mai.flower_shop.dto.ProductDto;
 import com.mai.flower_shop.model.Product;
 import com.mai.flower_shop.request.AddProductRequest;
 import com.mai.flower_shop.request.UpdateProductRequest;
@@ -20,4 +21,7 @@ public interface IProductService {
     List<Product> getProductsByBrandAndName( String category, String name);
     Long countProductsByBrandAndName(String brand, String name);
 
+    List<ProductDto> getConvertedProducts(List<Product> products);
+
+    ProductDto convertToDto(Product product);
 }
