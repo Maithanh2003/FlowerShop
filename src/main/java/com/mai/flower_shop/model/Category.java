@@ -1,5 +1,6 @@
 package com.mai.flower_shop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     protected String name;
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     List<Product> products;
+    public Category(String name) {
+        this.name = name;
+    }
 }

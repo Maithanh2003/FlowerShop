@@ -7,6 +7,7 @@ import com.mai.flower_shop.model.Product;
 import com.mai.flower_shop.repository.ImageRepository;
 import com.mai.flower_shop.repository.ProductRepository;
 import com.mai.flower_shop.service.product.IProductService;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,7 +64,7 @@ public class ImageService implements IImageService{
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
-                String buildDownloadUrl =  "/api/v1/image/download/" ;
+                String buildDownloadUrl =  "/api/v1/images/image/download/" ;
                 image.setDownloadUrl(buildDownloadUrl + image.getId());
                 Image savedImage = imageRepository.save(image);
 
