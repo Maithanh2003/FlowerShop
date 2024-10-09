@@ -2,6 +2,7 @@ package com.mai.flower_shop.service.cart;
 
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Cart;
+import com.mai.flower_shop.model.User;
 import com.mai.flower_shop.repository.CartItemRepository;
 import com.mai.flower_shop.repository.CartRepository;
 import jakarta.transaction.Transactional;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -33,10 +35,8 @@ public class CartService implements ICartService{
     public void clearCart(Long id) {
         Cart cart = getCart(id);
         cartItemRepository.deleteAllByCartId(id);
-        // vi bo nho van luu giu items
-        cart.getItems().clear();
+        cart.clearCart();
         cartRepository.deleteById(id);
-
     }
 
     @Override
@@ -45,11 +45,15 @@ public class CartService implements ICartService{
         return cart.getTotalAmount();
     }
     @Override
-    public Long initializeNewCart() {
-        Cart cart = new Cart();
-        Long newCartId = cartIdGenerator.incrementAndGet();
-        cart.setId(newCartId);
-        return cartRepository.save(cart).getId();
+    public Cart initializeNewCart(User user) {
+        return Optional.ofNullable(getCartByUserId(user.getId()))
+                .orElseGet(
+                        ()-> {
+                            Cart cart = new Cart();
+                            cart.setUser(user);
+                            return cartRepository.save(cart);
+                        }
+                );
     }
 
     @Override

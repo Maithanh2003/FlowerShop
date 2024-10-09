@@ -11,6 +11,7 @@ import com.mai.flower_shop.repository.CartRepository;
 import com.mai.flower_shop.repository.OrderRepository;
 import com.mai.flower_shop.repository.ProductRepository;
 import com.mai.flower_shop.service.cart.CartService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class OrderService implements IOrderService{
     private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
 
+    @Transactional
     @Override
     public Order placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
@@ -76,7 +78,8 @@ public class OrderService implements IOrderService{
     public List<OrderDto> getUserOrders(Long userId){
         return orderRepository.findByUserId(userId).stream().map(this::convertToDto).toList();
     }
-    private OrderDto convertToDto (Order order){
+    @Override
+    public OrderDto convertToDto (Order order){
         return modelMapper.map(order, OrderDto.class);
     }
 }

@@ -24,8 +24,9 @@ public class OrderController {
     public ResponseEntity<ApiResponse> createOrder (@RequestParam Long userId){
         try {
             Order order = orderService.placeOrder(userId);
+            OrderDto orderDto = orderService.convertToDto(order);
             return ResponseEntity.ok(ApiResponse.builder()
-                    .data(order)
+                    .data(orderDto)
                     .message("Order success").build());
         } catch (Exception e) {
             return ResponseEntity

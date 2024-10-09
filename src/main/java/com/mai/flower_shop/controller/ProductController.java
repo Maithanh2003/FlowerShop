@@ -2,6 +2,7 @@ package com.mai.flower_shop.controller;
 
 
 import com.mai.flower_shop.dto.ProductDto;
+import com.mai.flower_shop.exception.AlreadyExistsException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Category;
 import com.mai.flower_shop.model.Product;
@@ -16,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -59,8 +59,8 @@ public class ProductController {
                         .message("Add product success!")
                         .data(productDto)
                         .build());
-        } catch (Exception e) {
-            return  ResponseEntity.status(INTERNAL_SERVER_ERROR).body(ApiResponse.builder()
+        } catch (AlreadyExistsException e) {
+            return  ResponseEntity.status(CONFLICT).body(ApiResponse.builder()
                     .message(e.getMessage())
                     .data(null)
                     .build());

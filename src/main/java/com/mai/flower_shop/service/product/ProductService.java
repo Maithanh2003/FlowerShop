@@ -2,6 +2,7 @@ package com.mai.flower_shop.service.product;
 
 import com.mai.flower_shop.dto.ImageDto;
 import com.mai.flower_shop.dto.ProductDto;
+import com.mai.flower_shop.exception.AlreadyExistsException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Category;
 import com.mai.flower_shop.model.Image;
@@ -28,6 +29,9 @@ public class ProductService implements IProductService{
 
     @Override
     public Product addProduct(AddProductRequest request) {
+        if (productExists(request.getName(), request.getBrand())) {
+            throw new AlreadyExistsException( "already have name and brand exits, you may update product instead");
+        }
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet( () -> {
                     Category category1 = new Category(request.getCategory().getName());
@@ -45,6 +49,9 @@ public class ProductService implements IProductService{
                 .category(category)
                 .build();
          return product;
+    }
+    private boolean productExists (String name, String brand){
+        return productRepository.existsByNameAndBrand(name, brand);
     }
     @Override
     public Product getProductById(Long id) {
@@ -112,7 +119,7 @@ public class ProductService implements IProductService{
         return productRepository.countByBrandAndName(brand, name);
     }
     @Override
-    public List<ProductDto> getConvertedProducts (List<Product> products){
+    public List<ProductDto> getConvertedProducts(List<Product> products){
         return products.stream().map(this::convertToDto).toList();
 }
     @Override
