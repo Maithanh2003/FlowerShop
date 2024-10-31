@@ -1,5 +1,6 @@
 package com.mai.flower_shop.security.jwt;
 
+import com.mai.flower_shop.repository.InvalidatedTokenRepository;
 import com.mai.flower_shop.security.user.ShopUserDetails;
 import com.mai.flower_shop.security.user.ShopUserDetailsService;
 import io.jsonwebtoken.JwtException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +25,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
+    private InvalidatedTokenRepository invalidatedTokenRepository;
+    @Autowired
     private ShopUserDetailsService userDetailsService;
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -31,6 +35,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             String jwt = parseJwt(request);
             if (StringUtils.hasText(jwt) && jwtUtils.validateToken(jwt)) {
+                String idFromToken = jwtUtils.getIDFromToken(jwt);
+                if (invalidatedTokenRepository.existsById(idFromToken)) {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.getWriter().write("Token has been invalidated.");
+                    return;
+                }
                 String username = jwtUtils.getUsernameFromToken(jwt);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

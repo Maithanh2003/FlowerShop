@@ -29,6 +29,7 @@ public class CartItemController {
             Cart cart = cartService.initializeNewCart(user);
 
             cartItemService.addItemToCart(cart.getId(), productId, quantity);
+
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(null)
                     .message("add item success").build());
@@ -42,10 +43,12 @@ public class CartItemController {
                     .message(e.getMessage()).build());
         }
     }
+
     @DeleteMapping("/cart/{cartId}/item/{itemId}/remove")
     public ResponseEntity<ApiResponse> removeItem(@PathVariable Long cartId, @PathVariable Long itemId) {
         try {
             cartItemService.removeItemFromCart(cartId, itemId);
+
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(null)
                     .message("Remove Item Success").build());
@@ -54,8 +57,8 @@ public class CartItemController {
                     .data(null)
                     .message(e.getMessage()).build());
         }
-
     }
+
     @PutMapping("/cart/{cartId}/item/{itemId}/update")
     public ResponseEntity<ApiResponse> updateItemQuantity (@PathVariable Long cartId, @PathVariable Long itemId ,
                                                            @RequestParam Integer quantity){

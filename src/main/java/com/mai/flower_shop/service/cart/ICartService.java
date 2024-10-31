@@ -1,5 +1,6 @@
 package com.mai.flower_shop.service.cart;
 
+import com.mai.flower_shop.dto.CartDto;
 import com.mai.flower_shop.model.Cart;
 import com.mai.flower_shop.model.User;
 
@@ -13,4 +14,6 @@ public interface ICartService {
     Cart initializeNewCart(User user);
 
     Cart getCartByUserId(Long userId);
+
+    CartDto convertToDto(Cart cart);
 }

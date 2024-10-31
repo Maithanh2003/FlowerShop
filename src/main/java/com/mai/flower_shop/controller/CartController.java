@@ -1,7 +1,10 @@
 package com.mai.flower_shop.controller;
 
+import com.mai.flower_shop.dto.CartDto;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Cart;
+import com.mai.flower_shop.model.User;
+import com.mai.flower_shop.repository.UserRepository;
 import com.mai.flower_shop.response.ApiResponse;
 import com.mai.flower_shop.service.cart.CartService;
 import com.mai.flower_shop.service.cart.ICartService;
@@ -18,12 +21,29 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequestMapping("${api.prefix}/carts")
 public class CartController {
     private final ICartService cartService;
+    private final UserRepository userRepository;
+
     @GetMapping("/{cartId}/my-cart")
     public ResponseEntity<ApiResponse> getCart(@PathVariable Long cartId) {
         try {
             Cart cart = cartService.getCart(cartId);
+            CartDto cartDto = cartService.convertToDto(cart);
             return ResponseEntity.ok(ApiResponse.builder()
-                    .data(cart)
+                    .data(cartDto)
+                    .message("success").build());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(ApiResponse.builder()
+                    .data(null)
+                    .message(e.getMessage()).build());
+        }
+    }
+    @GetMapping("/user/{userId}/my-cart")
+    public ResponseEntity<ApiResponse> getUserCart( @PathVariable Long userId){
+        try {
+            Cart cart = cartService.getCartByUserId(userId);
+            CartDto cartDto = cartService.convertToDto(cart);
+            return ResponseEntity.ok(ApiResponse.builder()
+                    .data(cartDto)
                     .message("success").build());
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(ApiResponse.builder()

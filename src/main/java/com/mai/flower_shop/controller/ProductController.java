@@ -35,7 +35,7 @@ public class ProductController {
                 .data(convertedProducts)
                 .build());
     }
-    @GetMapping("product/{productId}/product")
+    @GetMapping("/product/{productId}/product")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId){
         try {
             Product product = productService.getProductById(productId);

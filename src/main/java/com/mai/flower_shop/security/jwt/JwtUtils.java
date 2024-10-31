@@ -17,6 +17,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class JwtUtils {
@@ -24,17 +25,21 @@ public class JwtUtils {
     private String jwtSecret;
     @Value("${auth.token.expirationInMils}")
     private int expirationTime;
+    @Value("${auth.token.refreshexpirationInMils}")
+    private int refreshExpirationTime;
 
-    public String generateTokenForUser (Authentication authentication){
+    public String generateTokenForUser (Authentication authentication, boolean isFresh){
         ShopUserDetails userPrincipal = (ShopUserDetails) authentication.getPrincipal();
         List<String> roles = userPrincipal.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).toList();
-
+        String jwtId = UUID.randomUUID().toString();
+        Long expirationTimeToken = Long.valueOf(isFresh ? expirationTime : refreshExpirationTime);
         return Jwts.builder()
+                .setId(jwtId)
                 .setSubject(userPrincipal.getEmail())
                 .claim("id", userPrincipal.getId())
                 .claim("roles", roles)
-               .setExpiration(new Date((new Date()).getTime() +expirationTime))
+               .setExpiration(new Date((new Date()).getTime() +expirationTimeToken))
                 .signWith(key(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -48,6 +53,14 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token)
                 .getBody().getSubject();
+
+    }
+    public String getIDFromToken( String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody().getId();
 
     }
     // check token true or false

@@ -8,9 +8,7 @@ import com.mai.flower_shop.service.category.ICategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -22,6 +20,7 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getAllCategories(){
         try {
             List<Category> categories = categoryService.getAllCategories();
+
             return ResponseEntity.ok().body(ApiResponse.builder()
                     .message("Found!")
                     .data(categories).build());
@@ -36,6 +35,7 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category category){
         try {
             Category newCategory = categoryService.addCategory(category);
+
             return ResponseEntity.ok().body(ApiResponse.builder()
                     .message("add success")
                     .data(newCategory).build());
@@ -45,10 +45,12 @@ public class CategoryController {
                     .data(null).build());
         }
     }
+
     @GetMapping("/category/{name}/category")
     public ResponseEntity<ApiResponse>  getCategoryByName (@PathVariable String name){
         try {
             Category category = categoryService.getCategoryByName(name);
+
             return ResponseEntity.ok().body(ApiResponse.builder()
                     .message("Found")
                     .data(category).build());
@@ -58,6 +60,7 @@ public class CategoryController {
                     .data(NOT_FOUND).build());
         }
     }
+
     @DeleteMapping("/category/{id}/delete")
     public ResponseEntity<ApiResponse>  deleteCategory (@PathVariable Long id){
         try {
@@ -71,6 +74,7 @@ public class CategoryController {
                     .data(NOT_FOUND).build());
         }
     }
+
     @PutMapping("/category/{id}/update")
     public ResponseEntity<ApiResponse> updateCategory (@RequestBody Category category, @PathVariable Long id){
         try {
@@ -83,6 +87,5 @@ public class CategoryController {
                     .message("update fail")
                     .data(null).build());
         }
-
     }
 }

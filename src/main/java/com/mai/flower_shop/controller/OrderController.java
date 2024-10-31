@@ -33,7 +33,7 @@ public class OrderController {
                     .status(INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.builder()
                             .data(e.getMessage())
-                            .message("error").build());
+                            .message("Error Occured").build());
         }
     }
     @GetMapping("{orderId}/order")

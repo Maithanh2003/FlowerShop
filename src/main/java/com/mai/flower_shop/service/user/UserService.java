@@ -1,8 +1,10 @@
 package com.mai.flower_shop.service.user;
 
+import com.mai.flower_shop.data.RoleRepository;
 import com.mai.flower_shop.dto.UserDto;
 import com.mai.flower_shop.exception.AlreadyExistsException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
+import com.mai.flower_shop.model.Role;
 import com.mai.flower_shop.model.User;
 import com.mai.flower_shop.repository.UserRepository;
 import com.mai.flower_shop.request.CreateUserRequest;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Override
     public User getUserById(Long userId) {
@@ -35,11 +39,13 @@ public class UserService implements IUserService{
         return Optional.of(request)
                 .filter(user -> !userRepository.existsByEmail(request.getEmail()))
                 .map(req -> {
+                    Role userRole = roleRepository.findByName("ROLE_USER").get();
                     User user = new User();
                     user.setFirstName(req.getFirstName());
                     user.setLastName(req.getLastName());
                     user.setEmail(req.getEmail());
                     user.setPassword(passwordEncoder.encode(req.getPassword()));
+                    user.setRoles(Set.of(userRole));
                     return  userRepository.save(user);
                 }).orElseThrow( () -> new AlreadyExistsException(request.getEmail() + "user already exits"));
     }
