@@ -8,6 +8,7 @@ import com.mai.flower_shop.request.CreateUserRequest;
 import com.mai.flower_shop.request.UpdateUserRequest;
 import com.mai.flower_shop.response.ApiResponse;
 import com.mai.flower_shop.service.user.IUserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class UserController {
         }
     }
     @PostMapping("/add")
-    public ResponseEntity <ApiResponse> createUser(@RequestBody CreateUserRequest request){
+    public ResponseEntity <ApiResponse> createUser( @Valid @RequestBody CreateUserRequest request){
         try {
             User user = userService.createUser(request);
             UserDto userDto = userService.convertToDto(user);
