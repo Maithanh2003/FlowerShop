@@ -19,4 +19,5 @@ public class UserDto {
     private String password;
     private CartDto cart;
     private List<OrderDto> orders;
+    private boolean enabled = false;
 }

@@ -27,6 +27,8 @@ public class JwtUtils {
     private int expirationTime;
     @Value("${auth.token.refreshexpirationInMils}")
     private int refreshExpirationTime;
+    @Value("${security.jwt.expiration-time}")
+    private long jwtExpiration;
 
     public String generateTokenForUser (Authentication authentication, boolean isFresh){
         ShopUserDetails userPrincipal = (ShopUserDetails) authentication.getPrincipal();
@@ -76,4 +78,6 @@ public class JwtUtils {
             throw new JwtException(e.getMessage());
         }
     }
+
+
 }

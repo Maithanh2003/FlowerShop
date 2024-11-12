@@ -66,8 +66,14 @@ public class ShopConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->auth.requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
-                        .anyRequest().permitAll());
+                .authorizeHttpRequests(auth -> {
+                            // Cho phép truy cập không cần xác thực vào các endpoint giao diện đăng nhập
+                            auth.requestMatchers("/api/v1/auth/login", "/api/v1/auth/success").permitAll();
+                            // Yêu cầu xác thực cho các URL đã cấu hình
+                            auth.requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated();
+                            // Các request còn lại được phép truy cập
+                            auth.anyRequest().permitAll();
+                });
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

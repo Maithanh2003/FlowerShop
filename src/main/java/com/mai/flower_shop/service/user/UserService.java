@@ -6,9 +6,13 @@ import com.mai.flower_shop.exception.AlreadyExistsException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Role;
 import com.mai.flower_shop.model.User;
+import com.mai.flower_shop.model.VerificationToken;
 import com.mai.flower_shop.repository.UserRepository;
+import com.mai.flower_shop.repository.VerificationTokenRepository;
 import com.mai.flower_shop.request.CreateUserRequest;
 import com.mai.flower_shop.request.UpdateUserRequest;
+import com.mai.flower_shop.service.email.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
@@ -16,8 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
+import java.security.SecureRandom;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,9 @@ public class UserService implements IUserService{
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
+    private final VerificationTokenRepository tokenRepository;
+    private static final Random RANDOM = new SecureRandom();
 
     @Override
     public User getUserById(Long userId) {
@@ -46,7 +53,19 @@ public class UserService implements IUserService{
                     user.setEmail(req.getEmail());
                     user.setPassword(passwordEncoder.encode(req.getPassword()));
                     user.setRoles(Set.of(userRole));
-                    return  userRepository.save(user);
+                    user.setEnabled(false);
+                    User savedUser = userRepository.save(user);
+
+                    String otpCode = generateOtpCode();
+                    VerificationToken verificationCode = new VerificationToken(otpCode, user);
+                    tokenRepository.save(verificationCode);
+                    try {
+                        emailService.sendVerificationEmail(user.getEmail(), otpCode);
+                    } catch (MessagingException e) {
+                        e.printStackTrace();
+                    }
+
+                    return savedUser;
                 }).orElseThrow( () -> new AlreadyExistsException(request.getEmail() + "user already exits"));
     }
 
@@ -79,5 +98,19 @@ public class UserService implements IUserService{
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return userRepository.findByEmail(email);
+    }
+    public boolean verifyUser(String token) {
+        VerificationToken verificationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+        if (verificationToken.getExpiryDate().before(new Date())) {
+            throw new RuntimeException("Verification code has expired");
+        }
+        User user = verificationToken.getUser();
+        user.setEnabled(true);
+        userRepository.save(user);
+        return true;
+    }
+    private String generateOtpCode() {
+        return String.format("%04d", RANDOM.nextInt(10000));
     }
 }

@@ -10,6 +10,7 @@ import com.mai.flower_shop.response.ApiResponse;
 import com.mai.flower_shop.response.JwtResponse;
 import com.mai.flower_shop.security.jwt.JwtUtils;
 import com.mai.flower_shop.security.user.ShopUserDetails;
+import com.mai.flower_shop.service.user.UserService;
 import io.jsonwebtoken.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +22,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/auth")
@@ -41,6 +37,8 @@ public class AuthController {
     private JwtUtils jwtUtils;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -49,6 +47,7 @@ public class AuthController {
                     .authenticate(new UsernamePasswordAuthenticationToken(
                             request.getEmail(), request.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
             String jwt = jwtUtils.generateTokenForUser(authentication, true);
             ShopUserDetails userDetails = (ShopUserDetails) authentication.getPrincipal();
             JwtResponse jwtResponse = new JwtResponse(userDetails.getId(), jwt);
@@ -110,5 +109,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.builder().message("An error occurred while refreshing token").data(null).build());
         }
+    }
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse> verifyEmail(@RequestParam("token") String token) {
+        boolean isVerified = userService.verifyUser(token);
+        if (isVerified) {
+            return ResponseEntity.ok(ApiResponse.builder().message("Email verified successfully").build());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.builder().message("Invalid token").build());
     }
 }

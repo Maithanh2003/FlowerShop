@@ -42,6 +42,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
             user.setEmail(defaultEmail);
             user.setPassword(passwordEncoder.encode("123456"));
             user.setRoles(Set.of(userRole));
+            user.setEnabled(true);
             userRepository.save(user);
             System.out.println("Default vet user " + i + " created successfully.");
         }
@@ -59,6 +60,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
             user.setEmail(defaultEmail);
             user.setPassword(passwordEncoder.encode("123456"));
             user.setRoles(Set.of(userRole));
+            user.setEnabled(true);
             userRepository.save(user);
             System.out.println("Default admin user " + i + " created successfully.");
         }
