@@ -11,7 +11,6 @@ import com.mai.flower_shop.response.JwtResponse;
 import com.mai.flower_shop.security.jwt.JwtUtils;
 import com.mai.flower_shop.security.user.ShopUserDetails;
 import com.mai.flower_shop.service.user.UserService;
-import io.jsonwebtoken.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/auth")
@@ -62,6 +62,7 @@ public class AuthController {
                     .body(ApiResponse.builder().message("An unexpected error occurred").data(null).build());
         }
     }
+
     @Transactional
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(@RequestBody LogoutRequest request) {
@@ -81,6 +82,7 @@ public class AuthController {
                     .body(ApiResponse.builder().message("An error occurred during logout").data(null).build());
         }
     }
+
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse> refresh(@RequestBody RefreshRequest request) {
         try {
@@ -110,6 +112,7 @@ public class AuthController {
                     .body(ApiResponse.builder().message("An error occurred while refreshing token").data(null).build());
         }
     }
+
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse> verifyEmail(@RequestParam("token") String token) {
         boolean isVerified = userService.verifyUser(token);

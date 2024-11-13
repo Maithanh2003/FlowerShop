@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
-
     public void sendVerificationEmail(String recipientEmail, String token) throws MessagingException {
         String subject = "Email Verification";
         String message2 = "Your verification code is: " + token ;

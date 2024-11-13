@@ -6,13 +6,15 @@ import com.mai.flower_shop.request.CreateUserRequest;
 import com.mai.flower_shop.request.UpdateUserRequest;
 
 public interface IUserService {
-    User getUserById (Long userId);
-    User createUser (CreateUserRequest request);
+    User getUserById(Long userId);
 
-    User updateUser (UpdateUserRequest request, Long userId);
+    User createUser(CreateUserRequest request);
+
+    User updateUser(UpdateUserRequest request, Long userId);
+
     void deleteUser(Long userId);
 
     UserDto convertToDto(User user);
 
-    User getAuthenticatedUser(long l);
+    User getAuthenticatedUser();
 }

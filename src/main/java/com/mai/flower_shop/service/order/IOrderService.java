@@ -7,8 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface IOrderService {
-    Order placeOrder (Long userId);
-    OrderDto getOrder (Long orderId);
+    Order placeOrder(Long userId);
+
+    OrderDto getOrder(Long orderId);
 
     List<OrderDto> getUserOrders(Long userId);
 

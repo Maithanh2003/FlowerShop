@@ -17,11 +17,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CartService implements ICartService{
+public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ModelMapper modelMapper;
     private final IUserService userService;
+
     @Override
     public Cart getCart(Long id) {
         Cart cart = cartRepository.findById(id).orElseThrow(
@@ -47,11 +48,12 @@ public class CartService implements ICartService{
         Cart cart = getCart(id);
         return cart.getTotalAmount();
     }
+
     @Override
     public Cart initializeNewCart(User user) {
         return Optional.ofNullable(getCartByUserId(user.getId()))
                 .orElseGet(
-                        ()-> {
+                        () -> {
                             Cart cart = new Cart();
                             cart.setUser(user);
                             return cartRepository.save(cart);
@@ -61,11 +63,11 @@ public class CartService implements ICartService{
 
     @Override
     public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserId (userId);
+        return cartRepository.findByUserId(userId);
     }
 
     @Override
-    public CartDto convertToDto(Cart cart){
+    public CartDto convertToDto(Cart cart) {
         return modelMapper.map(cart, CartDto.class);
     }
 }

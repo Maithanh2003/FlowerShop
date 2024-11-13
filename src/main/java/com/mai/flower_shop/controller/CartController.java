@@ -10,6 +10,8 @@ import com.mai.flower_shop.service.cart.CartService;
 import com.mai.flower_shop.service.cart.ICartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -37,8 +39,11 @@ public class CartController {
                     .message(e.getMessage()).build());
         }
     }
+
+
+    @PreAuthorize("#userId == authentication.principal.id")
     @GetMapping("/user/{userId}/my-cart")
-    public ResponseEntity<ApiResponse> getUserCart( @PathVariable Long userId){
+    public ResponseEntity<ApiResponse> getUserCart(@PathVariable Long userId) {
         try {
             Cart cart = cartService.getCartByUserId(userId);
             CartDto cartDto = cartService.convertToDto(cart);
@@ -51,8 +56,9 @@ public class CartController {
                     .message(e.getMessage()).build());
         }
     }
+
     @DeleteMapping("/{cartId}/clear")
-    public ResponseEntity<ApiResponse> clearCart (@PathVariable Long cartId){
+    public ResponseEntity<ApiResponse> clearCart(@PathVariable Long cartId) {
         try {
             cartService.clearCart(cartId);
             return ResponseEntity.ok(ApiResponse.builder()
@@ -64,8 +70,9 @@ public class CartController {
                     .message("total price").build());
         }
     }
+
     @GetMapping("/{cartId}/cart/total-price")
-    public ResponseEntity<ApiResponse> getTotalAmount (@PathVariable Long cartId){
+    public ResponseEntity<ApiResponse> getTotalAmount(@PathVariable Long cartId) {
         try {
             BigDecimal totalAmount = cartService.getTotalPrice(cartId);
             return ResponseEntity.ok(ApiResponse.builder()

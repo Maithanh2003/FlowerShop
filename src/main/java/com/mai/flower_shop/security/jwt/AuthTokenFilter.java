@@ -28,6 +28,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private InvalidatedTokenRepository invalidatedTokenRepository;
     @Autowired
     private ShopUserDetailsService userDetailsService;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -49,17 +50,18 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(e.getMessage() + " invalid or expired token, try again");
-            return ;
-        } catch (Exception e){
+            return;
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write(e.getMessage());
             return;
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
-    public String parseJwt(HttpServletRequest request){
+
+    public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")){
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
             return headerAuth.substring(7);
         }
         return null;

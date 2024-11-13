@@ -7,6 +7,7 @@ import com.mai.flower_shop.response.ApiResponse;
 import com.mai.flower_shop.service.order.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +21,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class OrderController {
     private final IOrderService orderService;
 
+    @PreAuthorize("#userId == authentication.principal.id")
     @PostMapping("/order")
-    public ResponseEntity<ApiResponse> createOrder (@RequestParam Long userId){
+    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
         try {
             Order order = orderService.placeOrder(userId);
             OrderDto orderDto = orderService.convertToDto(order);
@@ -36,14 +38,15 @@ public class OrderController {
                             .message("Error Occured").build());
         }
     }
+
     @GetMapping("{orderId}/order")
-    public ResponseEntity<ApiResponse> getOrderById (@PathVariable Long orderId){
+    public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
         try {
-            OrderDto order =  orderService.getOrder(orderId);
+            OrderDto order = orderService.getOrder(orderId);
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(order)
                     .message("get Order success").build());
-            } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity
                     .status(NOT_FOUND)
                     .body(ApiResponse.builder()
@@ -51,10 +54,11 @@ public class OrderController {
                             .message("error").build());
         }
     }
+
     @GetMapping("{userId}/order")
-    public ResponseEntity<ApiResponse> getUserOrders (@PathVariable Long userId){
+    public ResponseEntity<ApiResponse> getUserOrders(@PathVariable Long userId) {
         try {
-            List<OrderDto> orderList =  orderService.getUserOrders(userId);
+            List<OrderDto> orderList = orderService.getUserOrders(userId);
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(orderList)
                     .message("get Order list success").build());

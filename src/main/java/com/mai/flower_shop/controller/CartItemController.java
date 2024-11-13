@@ -1,5 +1,6 @@
 package com.mai.flower_shop.controller;
 
+import com.mai.flower_shop.exception.QuantityExceededException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Cart;
 import com.mai.flower_shop.model.User;
@@ -12,8 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,10 +22,11 @@ public class CartItemController {
     private final ICartItemService cartItemService;
     private final ICartService cartService;
     private final IUserService userService;
+
     @PostMapping("/item/add")
-    public ResponseEntity<ApiResponse> addItemToCart ( @RequestParam Long productId, @RequestParam Integer quantity){
+    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam Long productId, @RequestParam Integer quantity) {
         try {
-            User user = userService.getAuthenticatedUser(4L);
+            User user = userService.getAuthenticatedUser();
             Cart cart = cartService.initializeNewCart(user);
 
             cartItemService.addItemToCart(cart.getId(), productId, quantity);
@@ -33,11 +34,16 @@ public class CartItemController {
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(null)
                     .message("add item success").build());
+        } catch (QuantityExceededException e) {
+            return ResponseEntity.status(BAD_REQUEST).body(ApiResponse.builder()
+                    .data(null)
+                    .message(e.getMessage()).build());
+
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(ApiResponse.builder()
                     .data(null)
                     .message(e.getMessage()).build());
-        } catch (JwtException e){
+        } catch (JwtException e) {
             return ResponseEntity.status(UNAUTHORIZED).body(ApiResponse.builder()
                     .data(null)
                     .message(e.getMessage()).build());
@@ -60,10 +66,10 @@ public class CartItemController {
     }
 
     @PutMapping("/cart/{cartId}/item/{itemId}/update")
-    public ResponseEntity<ApiResponse> updateItemQuantity (@PathVariable Long cartId, @PathVariable Long itemId ,
-                                                           @RequestParam Integer quantity){
+    public ResponseEntity<ApiResponse> updateItemQuantity(@PathVariable Long cartId, @PathVariable Long itemId,
+                                                          @RequestParam Integer quantity) {
         try {
-            cartItemService.updateItemQuantity(cartId,itemId, quantity);
+            cartItemService.updateItemQuantity(cartId, itemId, quantity);
             return ResponseEntity.ok(ApiResponse.builder()
                     .data(null)
                     .message("Update Item Success").build());

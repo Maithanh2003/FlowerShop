@@ -1,5 +1,6 @@
 package com.mai.flower_shop.service.cart;
 
+import com.mai.flower_shop.exception.QuantityExceededException;
 import com.mai.flower_shop.exception.ResourceNotFoundException;
 import com.mai.flower_shop.model.Cart;
 import com.mai.flower_shop.model.CartItem;
@@ -13,11 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CartItemService implements ICartItemService{
+public class CartItemService implements ICartItemService {
     private final CartItemRepository cartItemRepository;
     private final CartService cartService;
     private final ProductService productService;
@@ -31,17 +31,18 @@ public class CartItemService implements ICartItemService{
         // if yes, increase quantity, no : create cart item entry
         Cart cart = cartService.getCart(cartId);
         Product product = productService.getProductById(productId);
+        if (quantity > product.getInventory())
+            throw new QuantityExceededException("so luong vuot qua cho phep ");
         CartItem cartItem = cart.getItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst().orElse(new CartItem());
-        if (cartItem.getId() == null){
+        if (cartItem.getId() == null) {
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setUnitPrice(product.getPrice());
-        }
-        else {
+        } else {
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
         cartItem.setTotalPrice();
@@ -78,15 +79,16 @@ public class CartItemService implements ICartItemService{
                 });
         BigDecimal totalAmount = cart.getItems()
                 .stream()
-                .map(CartItem :: getTotalPrice)
+                .map(CartItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         cart.setTotalAmount(totalAmount);
         cartRepository.save(cart);
     }
+
     @Override
     public CartItem getCartItem(Long cartId, Long productId) {
         Cart cart = cartService.getCart(cartId);
-        return  cart.getItems()
+        return cart.getItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst().orElseThrow(() -> new ResourceNotFoundException("Item not found"));

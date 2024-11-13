@@ -28,12 +28,11 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
         createDefaultAdminIfNotExits();
     }
 
-
-    private void createDefaultUserIfNotExits(){
+    private void createDefaultUserIfNotExits() {
         Role userRole = roleRepository.findByName("ROLE_USER").get();
-        for (int i = 1; i<=5; i++){
-            String defaultEmail = "user"+i+"@email.com";
-            if (userRepository.existsByEmail(defaultEmail)){
+        for (int i = 1; i <= 5; i++) {
+            String defaultEmail = "user" + i + "@email.com";
+            if (userRepository.existsByEmail(defaultEmail)) {
                 continue;
             }
             User user = new User();
@@ -47,11 +46,12 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
             System.out.println("Default vet user " + i + " created successfully.");
         }
     }
-    private void createDefaultAdminIfNotExits(){
+
+    private void createDefaultAdminIfNotExits() {
         Role userRole = roleRepository.findByName("ROLE_ADMIN").get();
-        for (int i = 1; i<=2; i++){
-            String defaultEmail = "admin"+i+"@email.com";
-            if (userRepository.existsByEmail(defaultEmail)){
+        for (int i = 1; i <= 2; i++) {
+            String defaultEmail = "admin" + i + "@email.com";
+            if (userRepository.existsByEmail(defaultEmail)) {
                 continue;
             }
             User user = new User();
@@ -65,10 +65,11 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
             System.out.println("Default admin user " + i + " created successfully.");
         }
     }
-    private void createDefaultRoleIfNotExits(Set<String> roles){
+
+    private void createDefaultRoleIfNotExits(Set<String> roles) {
         roles.stream()
                 .filter(role -> roleRepository.findByName(role).isEmpty())
-                .map(Role:: new).forEach(roleRepository::save);
+                .map(Role::new).forEach(roleRepository::save);
 
     }
 }

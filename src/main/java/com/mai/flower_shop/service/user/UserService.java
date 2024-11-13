@@ -25,7 +25,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
@@ -37,7 +37,7 @@ public class UserService implements IUserService{
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found")
+                () -> new ResourceNotFoundException("user not found")
         );
     }
 
@@ -66,7 +66,7 @@ public class UserService implements IUserService{
                     }
 
                     return savedUser;
-                }).orElseThrow( () -> new AlreadyExistsException(request.getEmail() + "user already exits"));
+                }).orElseThrow(() -> new AlreadyExistsException(request.getEmail() + "user already exits"));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class UserService implements IUserService{
                     existingUser.setFirstName(request.getFirstName());
                     existingUser.setLastName(request.getLastName());
                     return userRepository.save(existingUser);
-                }).orElseThrow( () -> new ResourceNotFoundException("user not found")
+                }).orElseThrow(() -> new ResourceNotFoundException("user not found")
                 );
     }
 
@@ -88,17 +88,19 @@ public class UserService implements IUserService{
                     throw new ResourceNotFoundException("user not found");
                 });
     }
+
     @Override
-    public UserDto convertToDto(User user){
+    public UserDto convertToDto(User user) {
         return modelMapper.map(user, UserDto.class);
     }
 
     @Override
-    public User getAuthenticatedUser(long l) {
+    public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return userRepository.findByEmail(email);
     }
+
     public boolean verifyUser(String token) {
         VerificationToken verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
@@ -110,6 +112,7 @@ public class UserService implements IUserService{
         userRepository.save(user);
         return true;
     }
+
     private String generateOtpCode() {
         return String.format("%04d", RANDOM.nextInt(10000));
     }
